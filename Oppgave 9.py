@@ -5,17 +5,27 @@ class Flervalg:
         for i in range(len(svarene)):
             self.svaralt[svarene[i]] = i
         self.riktigsvar = int(riktigsvar)
+        self.svarliste = []
+        self.ant_riktige = [0, 0]
 
-    def sjekk_svar(self):
-        svaret = int(input("Hvilket alternativ velger du? "))
-        while svaret != self.riktigsvar:
-            if svaret > 3:
-                print(f"Svaralternativ {svaret} finnes ikke. Velg mellom svaralternativ 1, 2, 3 eller 4.")
-                svaret = int(input("Hvilket alternativ velger du? "))
+    def svar(self):
+        svaret_spiller1 = int(input(f"Hvilket alternativ velger du spiller {1}? \n"))
+        svaret_spiller2 = int(input(f"Hvilket alternativ velger du spiller {2}? \n"))
+        self.svarliste = [svaret_spiller1, svaret_spiller2]
+
+    def korrekt_svar_tekst(self):
+        for j in range(len(self.svarliste)):
+            if self.svarliste[j] != self.riktigsvar:
+                if self.svarliste[j] > 3:
+                    print(f"Svaralternativ {self.svarliste[j]} fantes ikke. Se hvilke tall du kan velge mellom på neste spørsmal.")
+                else:
+                    print(f"Spiller {j+1} svarte feil. \n")
             else:
-                print(f"Feil svar, prøv igjen!")
-                svaret = int(input("Hvilket alternativ velger du? "))
-        return print(f"Riktig! Svaret var {self.riktigsvar}")
+                self.ant_riktige[j] += 1
+                print(f"Spiller {j+1} svarte riktig. \n")
+
+    def antall_riktige(self):
+        return self.ant_riktige
 
     def __str__(self):
         streng = f"{self.spmtekst} \n"
@@ -25,20 +35,27 @@ class Flervalg:
 
 
 def lesefil():
-    spormsaalListe = []
+    spormsaalliste = []
     with open("sporsmaalsfil.txt", "r") as fil:
         for linje in fil:
             splittet = linje.split(":")
             svarene = splittet[2].split(",")
             flervalget = Flervalg(splittet[0]+"\n", svarene, splittet[1])
-            print(flervalget)
-            flervalget.sjekk_svar()
-            spormsaalListe.append(flervalget)
-    return spormsaalListe
+            spormsaalliste.append(flervalget)
+    return spormsaalliste
 
 
 if __name__ == "__main__":
     fil = lesefil()
-
+    ant_riktige = [0, 0]
+    for spm in range(len(fil)):
+        print(fil[spm])
+        fil[spm].svar()
+        fil[spm].korrekt_svar_tekst()
+        riktige = fil[spm].antall_riktige()
+        for i in range(len(riktige)):
+            ant_riktige[i] += riktige[i]
+    for i in range(len(ant_riktige)):
+        print(f"Spiller {i+1} har {ant_riktige[i]} antall riktige svar.")
 
 
