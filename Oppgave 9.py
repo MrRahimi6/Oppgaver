@@ -16,7 +16,7 @@ class Flervalg:
     def korrekt_svar_tekst(self):
         for j in range(len(self.svarliste)):
             if self.svarliste[j] != self.riktigsvar:
-                if self.svarliste[j] > 3:
+                if self.svarliste[j] > 3 or self.svarliste[j] < 0:
                     print(f"Svaralternativ {self.svarliste[j]} fantes ikke. Se hvilke tall du kan velge mellom på neste spørsmal.")
                 else:
                     print(f"Spiller {j+1} svarte feil. \n")
@@ -46,13 +46,13 @@ def lesefil():
 
 
 if __name__ == "__main__":
-    fil = lesefil()
+    klasse_objekter = lesefil()
     ant_riktige = [0, 0]
-    for spm in range(len(fil)):
-        print(fil[spm])
-        fil[spm].svar()
-        fil[spm].korrekt_svar_tekst()
-        riktige = fil[spm].antall_riktige()
+    for objekt in klasse_objekter:
+        print(objekt)
+        objekt.svar()
+        objekt.korrekt_svar_tekst()
+        riktige = objekt.antall_riktige()
         for i in range(len(riktige)):
             ant_riktige[i] += riktige[i]
     for i in range(len(ant_riktige)):
