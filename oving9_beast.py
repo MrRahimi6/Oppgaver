@@ -1,41 +1,116 @@
-class Flervalg:
-    def __init__(self, spmtekst, svarene, riktigsvar):
-        self.spmtekst = spmtekst
-        self.svaralt = {}
-        for i in range(len(svarene)):
-            self.svaralt[svarene[i]] = i
-        self.riktigsvar = int(riktigsvar)
+class Spiller:
+    def __init__(self, navn, poengsum=0, svar=0):
+        self.navn = navn
+        self.poengsum = poengsum
+        self.svar = svar
 
-    def sjekk_svar(self):
-        svaret = int(input("Hvilket alternativ velger du? "))
-        while svaret != self.riktigsvar:
-            if svaret > 3:
-                print(f"Svaralternativ {svaret} finnes ikke. Velg mellom svaralternativ 1, 2, 3 eller 4.")
-                svaret = int(input("Hvilket alternativ velger du? "))
-            else:
-                print(f"Feil svar, prøv igjen!")
-                svaret = int(input("Hvilket alternativ velger du? "))
-        return print(f"Riktig! Svaret var {self.riktigsvar}")
+
+class Flervalgssporsmaal:
+
+    def __init__(self, sporsmaal, riktig_svar, valg):
+        self.__sporsmaal = sporsmaal
+        self.__valg = valg
+        self.__riktig_svar = riktig_svar
+
+    @property
+    def sporsmaal(self):
+        return self.__sporsmaal
+
+    @property
+    def valg(self):
+        return self.__valg
+
+    @property
+    def riktig_svar(self):
+        return self.__riktig_svar
+
+    ##########################################################
+    def sjekk_svar(self, svaret):
+        if svaret == self.riktig_svar:
+            return True
+        else:
+            return False
 
     def __str__(self):
-        streng = f"{self.spmtekst} \n"
-        for key, value in self.svaralt.items():
-            streng += f"{value}) {key}\n"
-        return streng
+        tekst = "Spørsmål:  "
+        tekst += self.sporsmaal + "\n"
+
+        for valg_nr, svar in enumerate(self.valg):
+            tekst += f"{valg_nr}: {svar} \n"
+
+        return tekst
+
+    def korrekt_svar_tekst(self):
+        tekst = f"Korrekt svar: {self.valg[self.__riktig_svar]}"
+
+        return tekst
 
 
-def lesefil():
-    spormsaalListe = []
-    with open("sporsmaalsfil.txt", "r") as fil:
-        for linje in fil:
-            splittet = linje.split(":")
-            svarene = splittet[2].split(",")
-            flervalget = Flervalg(splittet[0]+"\n", svarene, splittet[1])
-            print(flervalget)
-            flervalget.sjekk_svar()
-            spormsaalListe.append(flervalget)
-    return spormsaalListe
+#############################################################
 
+def lag_sporsmaal():
+    sporsmaalene = []
+
+    file = open("sporsmaalsfil.txt", "r", encoding="UTF8")
+
+    for line in file:
+        stripped_line = line.strip()
+
+        stripped_line = stripped_line.replace("[", "")
+        stripped_line = stripped_line.replace("]", "")
+
+        split_line = stripped_line.split(":")
+
+        # print(split_line)
+
+        question = split_line[0]
+
+        answer = int(split_line[1])
+
+        options = split_line[2]
+
+        opt1 = options.split(",")
+
+        sporsmaalene.append(Flervalgssporsmaal(question, answer, opt1))
+
+    return sporsmaalene
+
+
+def lag_spillerne():
+    spillerne = []
+    antall_spillere = int(input("Antall spillere: "))
+    for i in range(antall_spillere):
+        navn = input(f"Navnet til spiller {i}: ")
+        spilleren = Spiller(navn)
+        spillerne.append(spilleren)
+    return spillerne
+
+
+############################################################
 
 if __name__ == "__main__":
-    fil = lesefil()
+
+    sporsmaalene = lag_sporsmaal()
+    spillerne = lag_spillerne()
+
+    mest_poeng = None
+
+    for sporsmaal in sporsmaalene:
+        print(sporsmaal)
+        for spiller in spillerne:
+            spiller.svar = int(input(f"{spiller.navn}: "))
+
+        for spiller in spillerne:
+            if sporsmaal.sjekk_svar(spiller.svar):
+                print(f"{spiller.navn}: Riktig!\n")
+                spiller.poengsum += 1
+            else:
+                print(f"{spiller.navn}: Feil!\n")
+
+    for spiller in spillerne:
+        if (mest_poeng is None or spiller.poengsum > mest_poeng):
+            mest_poeng = spiller.poengsum
+
+            print(f"Vinner: {spiller.navn}")
+
+
